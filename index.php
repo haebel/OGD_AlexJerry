@@ -17,6 +17,35 @@
 <body id="bg1">
 <div class="container">
 
+    <?php
+    header('Content-Type: text/html; charset=ISO-8859-1');
+
+    //error_reporting(0);
+
+    //From W3Schools: Select Data With MySQL
+    $servername = "127.0.0.1";
+    $username = "root";
+    $password = "";
+    $dbname = "test";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT AbBez, AbGemeindeName FROM TAbstimmungen WHERE AbGemeindeName like '%Aff%' and AbBez like '%Bundes%'";
+    $result = $conn->query($sql);
+    if (mysqli_num_rows($result) > 0) {
+        // output data of each row
+        while($row = mysqli_fetch_assoc($result)) {
+            echo "id: " . $row["AbBez"]. " " . $row["AbGemeindeName"] . "<br>";
+        }
+    } else {
+        echo "0 results";
+    }
+    mysqli_close($conn);
+    ?>
+
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Distanzrechner</b></h2>
         <h3 class="form-signin-heading"><b><br>Eingaben</b></h3>
@@ -118,27 +147,10 @@
         <input type="number" step="any" id="input" class="form-control form-custom" placeholder="Eingabe" name="inputA"
                required autofocus>
 
-        <?php
-
-        //error_reporting(0);
-        $input = $_GET['inputA'];
-        ?>
 
         <h3 class="form-signin-heading"><b><br>Ausgaben</b></h3>
 
-        <p class="form-signin-heading"><?php echo $option1; ?></p>
-        <input type="number" id="input" class="form-control form-custom" placeholder="" name="outputA" required readonly
-               autofocus value="<?php echo $outputA; ?>">
-        <p class="form-signin-heading"><?php echo $option2; ?></p>
-        <input type="number" id="input" class="form-control form-custom" placeholder="" name="outputB" required readonly
-               autofocus value="<?php echo $outputB; ?>">
-        <p class="form-signin-heading"><?php echo $option3; ?></p>
-        <input type="number" id="input" class="form-control form-custom" placeholder="" name="outputC" required readonly
-               autofocus value="<?php echo $outputC; ?>">
-        <p class="form-signin-heading"><?php echo $option4; ?></p>
-        <input type="number" id="input" class="form-control form-custom" placeholder="" name="outputD" required readonly
-               autofocus value="<?php echo $outputD; ?>">
-        <br>
+
         <button class="btn btn-lg btn-primary btn-block btn-custom" id="button" type="submit" name="submit"
                 value="Senden">Berechnen
         </button>
