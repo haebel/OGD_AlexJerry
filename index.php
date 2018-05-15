@@ -20,25 +20,41 @@
     <?php
     header('Content-Type: text/html; charset=ISO-8859-1');
 
-    //error_reporting(0);
+    error_reporting(0);
 
     //From W3Schools: Select Data With MySQL
     $servername = "127.0.0.1";
     $username = "root";
     $password = "";
     $dbname = "test";
+    $dates = array();
+    $names = array();
+    $i=0;
+    $gemeinde = $_GET['gemeinde'];
+    $sucheName = $_GET['suche'];
 
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "SELECT AbBez, AbGemeindeName FROM TAbstimmungen WHERE AbGemeindeName like '%Aff%' and AbBez like '%Bundes%'";
+    if ($sucheName == null ||$sucheName == "") {
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen";
+    } else {
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" ."'%" . $sucheName . "%'";
+    }
+
+
     $result = $conn->query($sql);
     if (mysqli_num_rows($result) > 0) {
         // output data of each row
         while($row = mysqli_fetch_assoc($result)) {
-            echo "id: " . $row["AbBez"]. " " . $row["AbGemeindeName"] . "<br>";
+            $dates[$i] = $row["AbDatum"];
+            $names[$i] = $row['AbBez'];
+            $i++;
+        }
+        for ($i = 0; $i < 10; $i++) {
+            echo $dates[$i] . " " . $names[$i] . "<br>";
         }
     } else {
         echo "0 results";
@@ -49,8 +65,8 @@
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Distanzrechner</b></h2>
         <h3 class="form-signin-heading"><b><br>Eingaben</b></h3>
-        <p class="form-signin-heading">Masseinheit</p>
-        <select class="form-control form-custom" name="masseinheit">
+        <p class="form-signin-heading">Gemeinde</p>
+        <select class="form-control form-custom" name="gemeinde">
             <optgroup label="Arbon">
                 <option>Amriswil</option>
                 <option>Arbon</option>
@@ -144,7 +160,7 @@
         </select>
 
         <p class="form-signin-heading"><br>Wert</p>
-        <input type="number" step="any" id="input" class="form-control form-custom" placeholder="Eingabe" name="inputA"
+        <input type="text"  id="input" class="form-control form-custom" placeholder="Suche" name="suche"
                required autofocus>
 
 
