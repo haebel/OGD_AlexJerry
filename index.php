@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Die 3 Meta-Tags oben *müssen* zuerst im head stehen; jeglicher sonstiger head-Inhalt muss *nach* diesen Tags kommen -->
     <link rel="icon" href="img/favicon.ico">
-    <title>Eidgenössische Abstimmungen auf Gemeindeebene</title>
+    <title>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</title>
     <!-- Bootstrap via MaxCDN -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -42,7 +42,7 @@
     }
 
     if (($sucheName == null || $sucheName == "") && ($sucheJahr == null || $sucheJahr == "")) {
-        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen";
+        $sql = "SELECT distinct AbId, AbBez, AbDatum FROM TAbstimmungen";
     } else if ($sucheJahr == null || $sucheJahr == "") {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" . "'%" . $sucheName . "%'";
     } else if ($sucheName == null || $sucheName == "") {
@@ -53,7 +53,7 @@
 
 
     $result = $conn->query($sql);
-    if (mysqli_num_rows($result) > 0) {
+    /* if (mysqli_num_rows($result) > 0) {
         // output data of each row
         while ($row = mysqli_fetch_assoc($result)) {
             $dates[$i] = $row["AbDatum"];
@@ -66,15 +66,15 @@
     } else {
         echo "0 results";
     }
-    mysqli_close($conn);
+    mysqli_close($conn); */
     ?>
 
-    <h3 class="form-signin-heading"><b><br>Filter</b></h3>
+
 
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</b></h2>
-        <h3 class="form-signin-heading"><b><br>Eingaben</b></h3>
-        <p class="form-signin-heading">Gemeinde</p>
+        <h4 class="form-signin-heading"><br>Filter</h4>
+        <h4 class="form-signin-heading">Gemeinde</h4>
         <select class="form-control form-custom" name="gemeinde">
             <optgroup label="Arbon">
                 <option>Amriswil</option>
@@ -168,21 +168,53 @@
             </optgroup>
         </select>
         <div class="form-inline">
-            <p class="form-signin-heading"><br>Nach Name/Jahr suchen:</p>
+            <h4 class="form-signin-heading"><br>Nach Name/Jahr suchen:</h4>
         </div>
         <div class="form-inline">
             <input type="text" id="input" class="form-control form-custom" placeholder="Name" name="namesuche"
                    autofocus>
-
-
             <input type="text" id="input" class="form-control form-custom" placeholder="Jahr" name="jahrsuche"
                    autofocus>
-
             <button class="btn btn-primary" id="button" type="submit" name="submit"
-                    value="Senden">Berechnen
-            </button>
+                    value="Senden">Suchen</button>
         </div>
 
+        <?php
+
+
+
+        if (mysqli_num_rows($result) > 0) {
+            // output data of each row
+            while ($row = mysqli_fetch_assoc($result)) {
+                $dates[$i] = $row["AbDatum"];
+                $names[$i] = $row['AbBez'];
+                $i++;
+            }
+            $datalength = count($dates);
+            echo "<table class='table'>";
+            echo "<tr>";
+            echo "<th>Datum</th>";
+            echo "<th>Bezeichnung</th>";
+            echo "</tr>";
+            if ($datalength > 10) {
+                for ($i = 0; $i < 10; $i++) {
+                    echo "<td>" . $dates[$i] . "</td>";
+                    echo "<td>" . $names[$i] . "</td>";
+                    echo "</tr>";
+                }
+            } else {
+                for ($i = 0; $i < $datalength; $i++) {
+                    echo "<td>" . $dates[$i] . "</td>";
+                    echo "<td>" . $names[$i] . "</td>";
+                    echo "</tr>";
+                }
+            }
+
+        } else {
+            echo "0 results";
+        }
+        mysqli_close($conn);
+        ?>
 
     </form>
 
