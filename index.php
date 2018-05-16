@@ -32,10 +32,6 @@
     }
 </style>
 
-</head>
-<body id="bg1">
-<div class="container">
-
     <?php
     header('Content-Type: text/html; charset=ISO-8859-1');
 
@@ -54,11 +50,33 @@
     $gemeinde = $_GET['gemeinde'];
     $sucheName = $_GET['namesuche'];
     $sucheJahr = $_GET['jahrsuche'];
+    $typ = $_GET['typ'];
+    $form = $_GET['form'];
+
+
+    if ($_GET['dataSel'] == null || $_GET['dataSel'] == '') {
+
+    } else {
+        $name = $_GET['dataSel'];
+    }
+
+
 
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
+
+    if ($typ == "Ja/Nein") {
+        if ($form == "inAnzahlStimmen") {
+            $gemeindesql = "SELECT AbJaStimmen, AbNeinStimmen FROM TAbstimmungen WHERE AbGemeindeName = $gemeinde and AbBez = $name";
+        } else {
+            $gemeindesql = "SELECT AbJaStimmen, AbNeinStimmen FROM TAbstimmungen WHERE AbGemeindeName = $gemeinde and AbBez = $name";
+        }
+    } else {
+
+    }
+
 
     if (($sucheName == null || $sucheName == "") && ($sucheJahr == null || $sucheJahr == "")) {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen";
@@ -88,14 +106,38 @@
     mysqli_close($conn); */
     ?>
 
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load(
+            'current', {'packages': ['corechart']});
+
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            // Create the data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'State');
+            data.addColumn('number', 'Num');
+            data.addRows([
+                ['Ja', 3],
+                ['Nein', 1]
+            ]);
+    </script>
+
+
+</head>
+<body id="bg1">
+<div class="container">
+
+
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</b></h2>
-
         <div class="row">
             <div class="column">
                 <h3 class="form-signin-heading"><br>Filter</h3>
                 <br>
-                <h4 class="form-signin-heading">Gemeinde ausw&auml;hlen:</h4>
+                <h4 class="form-signin-heading">Gemeinde</h4>
                 <select class="form-control form-custom" name="gemeinde">
                     <optgroup label="Arbon">
                         <option>Amriswil</option>
@@ -121,7 +163,7 @@
                         <option>Gachnang</option>
                         <option>Herdern</option>
                         <option>Homburg</option>
-                        <option>Hüttlingen</option>
+                        <option>H&uuml;ttlingen</option>
                         <option>H&uuml;ttwilen</option>
                         <option>Mammern</option>
                         <option>Matzingen</option>
@@ -209,15 +251,15 @@
                 <p>Some text..</p>
             </div>
         </div>
-
         <div class="form-inline">
             <h4 class="form-signin-heading"><br>Nach Name/Jahr suchen:</h4>
         </div>
         <div class="form-inline">
             <input type="text" id="input" class="form-control form-custom" placeholder="Name" name="namesuche"
-                   autofocus>
-            <input type="text" id="input" class="form-control form-custom" placeholder="Jahr" name="jahrsuche"
-                   autofocus>
+                   autofocus value="<?php echo $sucheName; ?>">
+            <input type="number" min="1981" max="2017" id="input" class="form-control form-custom" placeholder="Jahr"
+                   name="jahrsuche"
+                   autofocus value="<?php echo $sucheJahr; ?>">
             <button class="btn btn-primary" id="button" type="submit" name="submit"
                     value="Senden">Suchen
             </button>
@@ -234,6 +276,8 @@
                 $i++;
             }
             $datalength = count($dates);
+            echo "<br>";
+            echo "<fieldset id='dataSel'>";
             echo "<table class='table'>";
             echo "<tr>";
             echo "<th>Datum</th>";
@@ -241,18 +285,37 @@
             echo "</tr>";
             if ($datalength > 10) {
                 for ($i = 0; $i < 10; $i++) {
-                    echo "<td>" . $dates[$i] . "</td>";
-                    echo "<td>" . $names[$i] . "</td>";
-                    echo "</tr>";
+                    if ($i == 0) {
+                        echo "<td>" . $dates[$i] . "</td>";
+                        echo "<td>" . $names[$i] . "</td>";
+                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]' CHECKED></td>";
+                        echo "</tr>";
+                    } else {
+                        echo "<td>" . $dates[$i] . "</td>";
+                        echo "<td>" . $names[$i] . "</td>";
+                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]'></td>";
+                        echo "</tr>";
+                    }
+
                 }
             } else {
                 for ($i = 0; $i < $datalength; $i++) {
-                    echo "<td>" . $dates[$i] . "</td>";
-                    echo "<td>" . $names[$i] . "</td>";
-                    echo "</tr>";
+                    if ($i == 0) {
+                        echo "<td>" . $dates[$i] . "</td>";
+                        echo "<td>" . $names[$i] . "</td>";
+                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]' CHECKED></td>";
+                        echo "</tr>";
+                    } else {
+                        echo "<td>" . $dates[$i] . "</td>";
+                        echo "<td>" . $names[$i] . "</td>";
+                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]'></td>";
+                        echo "</tr>";
+                    }
                 }
             }
-
+            echo "</table>";
+            echo "</fieldset>";
+            echo $name;
         } else {
             echo "0 results";
         }
@@ -262,7 +325,6 @@
     </form>
 
 </div>
-
 <!-- /container -->        <!-- Eigene JavaScripts -->
 <script src="js/myscripts.js"></script>
 <!-- jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
