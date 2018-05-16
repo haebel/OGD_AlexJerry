@@ -46,9 +46,9 @@
     } else if ($sucheJahr == null || $sucheJahr == "") {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" . "'%" . $sucheName . "%'";
     } else if ($sucheName == null || $sucheName == "") {
-        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) like" . "'%" . $sucheJahr . "%'";
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) = " .  $sucheJahr;
     } else {
-        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) like" . "'%" . $sucheJahr . "%' and AbBez like" . "'%" . $sucheName . "%'";
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) = " . $sucheJahr . " and AbBez like" . "'%" . $sucheName . "%'";
     }
 
 
