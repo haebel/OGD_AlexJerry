@@ -13,6 +13,25 @@
     <!-- Eigene Styles -->
     <!-- <link rel="stylesheet" href="css/bootstrap-custom.css">  -->
     <!-- ACHTUNG: IE < 9 unterstützen wir nicht mehr! -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .column {
+            flex: 50%;
+            padding: 10px;
+
+        /*height: 300px;/
+    }
+</style>
+
 </head>
 <body id="bg1">
 <div class="container">
@@ -42,11 +61,11 @@
     }
 
     if (($sucheName == null || $sucheName == "") && ($sucheJahr == null || $sucheJahr == "")) {
-        $sql = "SELECT distinct AbId, AbBez, AbDatum FROM TAbstimmungen";
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen";
     } else if ($sucheJahr == null || $sucheJahr == "") {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" . "'%" . $sucheName . "%'";
     } else if ($sucheName == null || $sucheName == "") {
-        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) = " .  $sucheJahr;
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) = " . $sucheJahr;
     } else {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) = " . $sucheJahr . " and AbBez like" . "'%" . $sucheName . "%'";
     }
@@ -69,104 +88,128 @@
     mysqli_close($conn); */
     ?>
 
-
-
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</b></h2>
-        <h4 class="form-signin-heading"><br>Filter</h4>
-        <h4 class="form-signin-heading">Gemeinde</h4>
-        <select class="form-control form-custom" name="gemeinde">
-            <optgroup label="Arbon">
-                <option>Amriswil</option>
-                <option>Arbon</option>
-                <option>Dozwil</option>
-                <option>Egnach</option>
-                <option>Hefenhofen</option>
-                <option>Horn</option>
-                <option>Kesswil</option>
-                <option>Roggwil</option>
-                <option>Romanshorn</option>
-                <option>Salmsach</option>
-                <option>Sommeri</option>
-                <option>Uttwil</option>
-            </optgroup>
-            <optgroup label="Frauenfeld">
-                <option>Basadingen-Schlattingen</option>
-                <option>Berlingen</option>
-                <option>Diessenhofen</option>
-                <option>Eschenz</option>
-                <option>Felben-Wellhausen</option>
-                <option>Frauenfeld</option>
-                <option>Gachnang</option>
-                <option>Herdern</option>
-                <option>Homburg</option>
-                <option>Hüttlingen</option>
-                <option>Hüttwilen</option>
-                <option>Mammern</option>
-                <option>Matzingen</option>
-                <option>Müllheim</option>
-                <option>Neunforn</option>
-                <option>Pfyn</option>
-                <option>Schlatt</option>
-                <option>Steckborn</option>
-                <option>Stettfurt</option>
-                <option>Thundorf</option>
-                <option>Uesslingen-Buch</option>
-                <option>Wagenhausen</option>
-                <option>Warth-Weiningen</option>
-            </optgroup>
-            <optgroup label="Kreuzlingen">
-                <option>Altnau</option>
-                <option>Bottighofen</option>
-                <option>Ermatingen</option>
-                <option>Gottlieben</option>
-                <option>Güttingen</option>
-                <option>Kemmental</option>
-                <option>Kreuzlingen</option>
-                <option>Langrickenbach</option>
-                <option>Lengwil</option>
-                <option>Münsterlingen</option>
-                <option>Raperswilen</option>
-                <option>Salenstein</option>
-                <option>Tägerwilen</option>
-                <option>Wäldi</option>
-            </optgroup>
-            <optgroup label="Münchwilen">
-                <option>Aadorf</option>
-                <option>Bettwiesen</option>
-                <option>Bichelsee-Balterswil</option>
-                <option>Braunau</option>
-                <option>Eschlikon</option>
-                <option>Fischingen</option>
-                <option>Lommis</option>
-                <option>Münchwilen</option>
-                <option>Rickenbach</option>
-                <option>Sirnach</option>
-                <option>Tobel-Tägerschen</option>
-                <option>Wängi</option>
-                <option>Wilen</option>
-            </optgroup>
-            <optgroup label="Weinfelden">
-                <option>Affeltrangen</option>
-                <option>Amlikon-Bissegg</option>
-                <option>Berg</option>
-                <option>Birwinken</option>
-                <option>Bischofszell</option>
-                <option>Bürglen</option>
-                <option>Bussnang</option>
-                <option>Erlen</option>
-                <option>Hauptwil-Gottshaus</option>
-                <option>Hohentannen</option>
-                <option>Kradolf-Schönenberg</option>
-                <option>Märstetten</option>
-                <option>Schönholzerswilen</option>
-                <option>Sulgen</option>
-                <option>Weinfelden</option>
-                <option>Wigoltingen</option>
-                <option>Wuppenau</option>
-                <option>Zihlschlacht-Sitterdorf</option>
-            </optgroup>
-        </select>
+
+        <div class="row">
+            <div class="column">
+                <h3 class="form-signin-heading"><br>Filter</h3>
+                <br>
+                <h4 class="form-signin-heading">Gemeinde ausw&auml;hlen:</h4>
+                <select class="form-control form-custom" name="gemeinde">
+                    <optgroup label="Arbon">
+                        <option>Amriswil</option>
+                        <option>Arbon</option>
+                        <option>Dozwil</option>
+                        <option>Egnach</option>
+                        <option>Hefenhofen</option>
+                        <option>Horn</option>
+                        <option>Kesswil</option>
+                        <option>Roggwil</option>
+                        <option>Romanshorn</option>
+                        <option>Salmsach</option>
+                        <option>Sommeri</option>
+                        <option>Uttwil</option>
+                    </optgroup>
+                    <optgroup label="Frauenfeld">
+                        <option>Basadingen-Schlattingen</option>
+                        <option>Berlingen</option>
+                        <option>Diessenhofen</option>
+                        <option>Eschenz</option>
+                        <option>Felben-Wellhausen</option>
+                        <option>Frauenfeld</option>
+                        <option>Gachnang</option>
+                        <option>Herdern</option>
+                        <option>Homburg</option>
+                        <option>Hüttlingen</option>
+                        <option>H&uuml;ttwilen</option>
+                        <option>Mammern</option>
+                        <option>Matzingen</option>
+                        <option>M&uuml;llheim</option>
+                        <option>Neunforn</option>
+                        <option>Pfyn</option>
+                        <option>Schlatt</option>
+                        <option>Steckborn</option>
+                        <option>Stettfurt</option>
+                        <option>Thundorf</option>
+                        <option>Uesslingen-Buch</option>
+                        <option>Wagenhausen</option>
+                        <option>Warth-Weiningen</option>
+                    </optgroup>
+                    <optgroup label="Kreuzlingen">
+                        <option>Altnau</option>
+                        <option>Bottighofen</option>
+                        <option>Ermatingen</option>
+                        <option>Gottlieben</option>
+                        <option>G&uuml;ttingen</option>
+                        <option>Kemmental</option>
+                        <option>Kreuzlingen</option>
+                        <option>Langrickenbach</option>
+                        <option>Lengwil</option>
+                        <option>M&uuml;nsterlingen</option>
+                        <option>Raperswilen</option>
+                        <option>Salenstein</option>
+                        <option>T&auml;gerwilen</option>
+                        <option>W&auml;ldi</option>
+                    </optgroup>
+                    <optgroup label="M&uuml;nchwilen">
+                        <option>Aadorf</option>
+                        <option>Bettwiesen</option>
+                        <option>Bichelsee-Balterswil</option>
+                        <option>Braunau</option>
+                        <option>Eschlikon</option>
+                        <option>Fischingen</option>
+                        <option>Lommis</option>
+                        <option>M&uuml;nchwilen</option>
+                        <option>Rickenbach</option>
+                        <option>Sirnach</option>
+                        <option>Tobel-T&auml;gerschen</option>
+                        <option>W&auml;ngi</option>
+                        <option>Wilen</option>
+                    </optgroup>
+                    <optgroup label="Weinfelden">
+                        <option>Affeltrangen</option>
+                        <option>Amlikon-Bissegg</option>
+                        <option>Berg</option>
+                        <option>Birwinken</option>
+                        <option>Bischofszell</option>
+                        <option>B&uuml;rglen</option>
+                        <option>Bussnang</option>
+                        <option>Erlen</option>
+                        <option>Hauptwil-Gottshaus</option>
+                        <option>Hohentannen</option>
+                        <option>Kradolf-Sch&ouml;nenberg</option>
+                        <option>M&auml;rstetten</option>
+                        <option>Sch&ouml;nholzerswilen</option>
+                        <option>Sulgen</option>
+                        <option>Weinfelden</option>
+                        <option>Wigoltingen</option>
+                        <option>Wuppenau</option>
+                        <option>Zihlschlacht-Sitterdorf</option>
+                    </optgroup>
+                </select>
+                <h4><br>Anzeigeart auswh&auml;hlen:</h4>
+                <h5><br>Typ der Daten</h5>
+                <fieldset id="typ">
+                    <input type="radio" id="jaNein" name="typ" value="Ja/Nein" CHECKED>
+                    <label for="jaNein"> Ja/Nein</label><br>
+                    <input type="radio" id="stimmbeteiligung" name="typ" value="Stimmbeteiligung">
+                    <label for="stimmbeteiligung"> Stimmbeteiligung</label>
+                </fieldset>
+                <h5><br>Form der Daten:</h5>
+                <fieldset id="form">
+                    <input type="radio" id="prozent" name="form" value="inProzent" CHECKED>
+                    <label for="prozent"> In Prozent</label><br>
+                    <input type="radio" id="anzahlStimmen" name="form" value="inAnzahlStimmen">
+                    <label for="anzahlStimmen"> In Anzahl Stimmen</label>
+                </fieldset>
+            </div>
+            <div class="column">
+                <h2>Column 2</h2>
+                <p>Some text..</p>
+            </div>
+        </div>
+
         <div class="form-inline">
             <h4 class="form-signin-heading"><br>Nach Name/Jahr suchen:</h4>
         </div>
@@ -176,11 +219,11 @@
             <input type="text" id="input" class="form-control form-custom" placeholder="Jahr" name="jahrsuche"
                    autofocus>
             <button class="btn btn-primary" id="button" type="submit" name="submit"
-                    value="Senden">Suchen</button>
+                    value="Senden">Suchen
+            </button>
         </div>
 
         <?php
-
 
 
         if (mysqli_num_rows($result) > 0) {
@@ -219,6 +262,7 @@
     </form>
 
 </div>
+
 <!-- /container -->        <!-- Eigene JavaScripts -->
 <script src="js/myscripts.js"></script>
 <!-- jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
