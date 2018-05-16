@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Die 3 Meta-Tags oben *müssen* zuerst im head stehen; jeglicher sonstiger head-Inhalt muss *nach* diesen Tags kommen -->
     <link rel="icon" href="img/favicon.ico">
-    <title>Distanzrechner</title>
+    <title>Eidgenössische Abstimmungen auf Gemeindeebene</title>
     <!-- Bootstrap via MaxCDN -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -72,7 +72,7 @@
     <h3 class="form-signin-heading"><b><br>Filter</b></h3>
 
     <form class="form-signin" name="formular" method="get" action="index.php">
-        <h2 class="form-signin-heading"><b>Distanzrechner</b></h2>
+        <h2 class="form-signin-heading"><b>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</b></h2>
         <h3 class="form-signin-heading"><b><br>Eingaben</b></h3>
         <p class="form-signin-heading">Gemeinde</p>
         <select class="form-control form-custom" name="gemeinde">
