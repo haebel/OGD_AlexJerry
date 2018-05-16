@@ -22,6 +22,8 @@
 
     error_reporting(0);
 
+    session_start();
+
     //From W3Schools: Select Data With MySQL
     $servername = "127.0.0.1";
     $username = "root";
@@ -29,26 +31,31 @@
     $dbname = "test";
     $dates = array();
     $names = array();
-    $i=0;
+    $i = 0;
     $gemeinde = $_GET['gemeinde'];
-    $sucheName = $_GET['suche'];
+    $sucheName = $_GET['namesuche'];
+    $sucheJahr = $_GET['jahrsuche'];
 
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    if ($sucheName == null ||$sucheName == "") {
+    if (($sucheName == null || $sucheName == "") && ($sucheJahr == null || $sucheJahr == "")) {
         $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen";
+    } else if ($sucheJahr == null || $sucheJahr == "") {
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" . "'%" . $sucheName . "%'";
+    } else if ($sucheName == null || $sucheName == "") {
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) like" . "'%" . $sucheJahr . "%'";
     } else {
-        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE AbBez like" ."'%" . $sucheName . "%'";
+        $sql = "SELECT distinct AbBez, AbDatum FROM TAbstimmungen WHERE year(AbDatum) like" . "'%" . $sucheJahr . "%' and AbBez like" . "'%" . $sucheName . "%'";
     }
 
 
     $result = $conn->query($sql);
     if (mysqli_num_rows($result) > 0) {
         // output data of each row
-        while($row = mysqli_fetch_assoc($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $dates[$i] = $row["AbDatum"];
             $names[$i] = $row['AbBez'];
             $i++;
@@ -61,6 +68,8 @@
     }
     mysqli_close($conn);
     ?>
+
+    <h3 class="form-signin-heading"><b><br>Filter</b></h3>
 
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Distanzrechner</b></h2>
@@ -158,18 +167,22 @@
                 <option>Zihlschlacht-Sitterdorf</option>
             </optgroup>
         </select>
+        <div class="form-inline">
+            <p class="form-signin-heading"><br>Nach Name/Jahr suchen:</p>
+        </div>
+        <div class="form-inline">
+            <input type="text" id="input" class="form-control form-custom" placeholder="Name" name="namesuche"
+                   autofocus>
 
-        <p class="form-signin-heading"><br>Wert</p>
-        <input type="text"  id="input" class="form-control form-custom" placeholder="Suche" name="suche"
-               required autofocus>
 
+            <input type="text" id="input" class="form-control form-custom" placeholder="Jahr" name="jahrsuche"
+                   autofocus>
 
-        <h3 class="form-signin-heading"><b><br>Ausgaben</b></h3>
+            <button class="btn btn-primary" id="button" type="submit" name="submit"
+                    value="Senden">Berechnen
+            </button>
+        </div>
 
-
-        <button class="btn btn-lg btn-primary btn-block btn-custom" id="button" type="submit" name="submit"
-                value="Senden">Berechnen
-        </button>
 
     </form>
 
