@@ -28,7 +28,7 @@
             flex: 50%;
             padding: 10px;
 
-        /*height: 300px;/
+
     }
 </style>
 
@@ -56,7 +56,12 @@
     $gemeinde = $_GET['gemeinde'];
     $sucheName = $_GET['namesuche'];
     $sucheJahr = $_GET['jahrsuche'];
-    $typ = $_GET['typ'];
+    if (!empty($_GET['typ'])) {
+        $typ = $_GET['typ'];
+    } else {
+        $typ = "Ja/Nein";
+    }
+
     if (!empty($_GET['gemeinde'])) {
         $dropDownVal = $_GET['gemeinde'];
     } else {
@@ -107,7 +112,6 @@
         $neinAusgabe = round($neinAusgabe);
     }
 
-
     ?>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -131,15 +135,16 @@
             data.addColumn('string', 'State');
             data.addColumn('number', 'Number');
             data.addRows([
-                ['Ja', <?php echo $jaAusgabe;?>],
-                ['Nein', <?php echo $neinAusgabe;?>]
+                ['<?php if ($typ == "Ja/Nein") { echo "Ja"; } else { echo "Stimmende"; }?>', <?php echo $jaAusgabe;?>],
+                ['<?php if ($typ == "Ja/Nein") { echo "Nein"; } else { echo "Nicht-Stimmende"; }?>', <?php echo $neinAusgabe;?>]
             ]);
 
             // Set chart options
             var options = {
                 'title': '<?php echo $name;?>',
-                'width': 400,
-                'height': 300
+                'width': 600,
+                'height': 450,
+                'is3D': true
             };
 
             // Instantiate and draw our chart, passing in some options.
@@ -156,6 +161,10 @@
 
     </script>
 
+
+    <div id="content">
+
+    </div>
     <form class="form-signin" name="formular" method="get" action="index.php">
         <h2 class="form-signin-heading"><b>Eidgen&ouml;ssische Abstimmungen auf Gemeindeebene</b></h2>
         <div class="row">
@@ -411,13 +420,18 @@
                 </select>
                 <h4><br>Anzeigeart ausw&auml;hlen:</h4>
                 <fieldset id="typ">
-                    <input type="radio" id="jaNein" name="typ" value="Ja/Nein" CHECKED>
+                    <input type="radio" id="jaNein" name="typ" value="Ja/Nein" <?php if ($typ == "Ja/Nein") echo 'checked';?>>
                     <label for="jaNein"> Ja/Nein</label><br>
-                    <input type="radio" id="stimmbeteiligung" name="typ" value="Stimmbeteiligung">
+                    <input type="radio" id="stimmbeteiligung" name="typ" value="Stimmbeteiligung" <?php if ($typ == "Stimmbeteiligung") echo 'checked';?>>
                     <label for="stimmbeteiligung"> Stimmbeteiligung</label>
                 </fieldset>
+                <br>
+                <button class="btn btn-primary" id="button" type="submit" name="submit"
+                        value="Senden">Filtern
+                </button>
             </div>
             <div class="column">
+
                 <div id="chart_div"></div>
             </div>
         </div>
@@ -497,6 +511,8 @@
     </form>
 
 </div>
+
+
 <!-- /container -->        <!-- Eigene JavaScripts -->
 <script src="js/myscripts.js"></script>
 <!-- jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
