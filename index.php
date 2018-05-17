@@ -57,7 +57,6 @@
     $sucheName = $_GET['namesuche'];
     $sucheJahr = $_GET['jahrsuche'];
     $typ = $_GET['typ'];
-    $form = $_GET['form'];
     if (!empty($_GET['gemeinde'])) {
         $dropDownVal = $_GET['gemeinde'];
     } else {
@@ -78,8 +77,7 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $gemeindesql = "SELECT distinct AbJaStimmen, AbNeinStimmen, AbStimmbeteiligung, AbStimmberechtigte FROM TAbstimmungen WHERE AbGemeindeName = '" . $gemeinde . "' and AbBez = '" . $name. "' ";
-
+    $gemeindesql = "SELECT distinct AbJaStimmen, AbNeinStimmen, AbStimmbeteiligung, AbStimmberechtigte FROM TAbstimmungen WHERE AbGemeindeName = '" . $gemeinde . "' and AbBez = '" . $name . "' ";
 
 
     if (($sucheName == null || $sucheName == "") && ($sucheJahr == null || $sucheJahr == "")) {
@@ -96,73 +94,66 @@
     $result = $conn->query($sql);
 
     $succrow = mysqli_fetch_assoc($gemeinderesult);
-        if ($form == "inProzent") {
-            if ($typ == "Ja/Nein") {
-                $ja1 = $succrow["AbJaStimmen"];
-                $nein1 = $succrow["AbNeinStimmen"];
-                $jaAusgabe = 100 / ($ja1 + $nein1) * $ja1;
-                $neinAusgabe = 100 / ($ja1 + $nein1) * $nein1;
-            } else {
-                $jaAusgabe = (float)$succrow['AbStimmbeteiligung'];
-                $neinAusgabe = 100 - $jaAusgabe;
-            }
-        } else {
-            if ($typ == "Ja/Nein") {
-                $jaAusgabe = (float)$succrow["AbJaStimmen"];
-                $neinAusgabe = (float)$succrow["AbNeinStimmen"];
-            } else {
-                $ja1 = (float)$succrow['AbStimmbeteiligung'];
-                $total = (float)$succrow['AbStimmberechtigte'];
-                $jaAusgabe = $total * $ja1 / 100;
-                $neinAusgabe = $total - $jaAusgabe;
-            }
-        }
 
-
-    /* if (mysqli_num_rows($result) > 0) {
-        // output data of each row
-        while ($row = mysqli_fetch_assoc($result)) {
-            $dates[$i] = $row["AbDatum"];
-            $names[$i] = $row['AbBez'];
-            $i++;
-        }
-        for ($i = 0; $i < 10; $i++) {
-            echo $dates[$i] . " " . $names[$i] . "<br>";
-        }
+    if ($typ == "Ja/Nein") {
+        $jaAusgabe = (float)$succrow["AbJaStimmen"];
+        $neinAusgabe = (float)$succrow["AbNeinStimmen"];
     } else {
-        echo "0 results";
+        $ja1 = (float)$succrow['AbStimmbeteiligung'];
+        $total = (float)$succrow['AbStimmberechtigte'];
+        $jaAusgabe = $total * $ja1 / 100;
+        $jaAusgabe = round($jaAusgabe);
+        $neinAusgabe = $total - $jaAusgabe;
+        $neinAusgabe = round($neinAusgabe);
     }
-    mysqli_close($conn); */
+
+
     ?>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load(
-            'current', {'packages': ['corechart']});
+        var data;
+        var chart;
 
+        // Load the Visualization API and the piechart package.
+        google.charts.load('current', {'packages': ['corechart']});
+
+        // Set a callback to run when the Google Visualization API is loaded.
         google.charts.setOnLoadCallback(drawChart);
 
+        // Callback that creates and populates a data table,
+        // instantiates the pie chart, passes in the data and
+        // draws it.
         function drawChart() {
 
-            // Create the data table.
-            var data = new google.visualization.DataTable();
+            // Create our data table.
+            data = new google.visualization.DataTable();
             data.addColumn('string', 'State');
-            data.addColumn('number', 'Num');
+            data.addColumn('number', 'Number');
             data.addRows([
                 ['Ja', <?php echo $jaAusgabe;?>],
                 ['Nein', <?php echo $neinAusgabe;?>]
             ]);
 
+            // Set chart options
             var options = {
-                'title':<?php echo $name;?>,
-                'width': 200,
-                'height': 200
+                'title': '<?php echo $name;?>',
+                'width': 400,
+                'height': 300
             };
 
-            var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+            // Instantiate and draw our chart, passing in some options.
+            chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+            google.visualization.events.addListener(chart, 'select', selectHandler);
             chart.draw(data, options);
-
         }
+
+        function selectHandler() {
+            var selectedItem = chart.getSelection()[0];
+            var value = data.getValue(selectedItem.row, 0);
+            alert('The user selected ' + value);
+        }
+
     </script>
 
     <form class="form-signin" name="formular" method="get" action="index.php">
@@ -174,116 +165,260 @@
                 <h4 class="form-signin-heading">Gemeinde</h4>
                 <select class="form-control form-custom" name="gemeinde">
                     <optgroup label="Arbon">
-                        <option value="Amriswil" <?php if ($dropDownVal=="Amriswil") echo 'selected="selected"'; ?>>Amriswil</option>
-                        <option value="Arbon" <?php if ($dropDownVal=="Arbon") echo 'selected="selected"'; ?>>Arbon</option>
-                        <option value="Dozwil" <?php if ($dropDownVal=="Dozwil") echo 'selected="selected"'; ?>>Dozwil</option>
-                        <option value="Egnach" <?php if ($dropDownVal=="Egnach") echo 'selected="selected"'; ?>>Egnach</option>
-                        <option value="Hefenhofen" <?php if ($dropDownVal=="Hefenhofen") echo 'selected="selected"'; ?>>Hefenhofen</option>
-                        <option value="Horn" <?php if ($dropDownVal=="Horn") echo 'selected="selected"'; ?>>Horn</option>
-                        <option value="Kesswil" <?php if ($dropDownVal=="Kesswil") echo 'selected="selected"'; ?>>Kesswil</option>
-                        <option value="Roggwil" <?php if ($dropDownVal=="Roggwil") echo 'selected="selected"'; ?>>Roggwil</option>
-                        <option value="Romanshorn" <?php if ($dropDownVal=="Romanshorn") echo 'selected="selected"'; ?>>Romanshorn</option>
-                        <option value="Salmsach" <?php if ($dropDownVal=="Salmsach") echo 'selected="selected"'; ?>>Salmsach</option>
-                        <option value="Sommeri" <?php if ($dropDownVal=="Sommeri") echo 'selected="selected"'; ?>>Sommeri</option>
-                        <option value="Uttwil" <?php if ($dropDownVal=="Uttwil") echo 'selected="selected"'; ?>>Uttwil</option>
+                        <option value="Amriswil" <?php if ($dropDownVal == "Amriswil") echo 'selected="selected"'; ?>>
+                            Amriswil
+                        </option>
+                        <option value="Arbon" <?php if ($dropDownVal == "Arbon") echo 'selected="selected"'; ?>>Arbon
+                        </option>
+                        <option value="Dozwil" <?php if ($dropDownVal == "Dozwil") echo 'selected="selected"'; ?>>
+                            Dozwil
+                        </option>
+                        <option value="Egnach" <?php if ($dropDownVal == "Egnach") echo 'selected="selected"'; ?>>
+                            Egnach
+                        </option>
+                        <option value="Hefenhofen" <?php if ($dropDownVal == "Hefenhofen") echo 'selected="selected"'; ?>>
+                            Hefenhofen
+                        </option>
+                        <option value="Horn" <?php if ($dropDownVal == "Horn") echo 'selected="selected"'; ?>>Horn
+                        </option>
+                        <option value="Kesswil" <?php if ($dropDownVal == "Kesswil") echo 'selected="selected"'; ?>>
+                            Kesswil
+                        </option>
+                        <option value="Roggwil" <?php if ($dropDownVal == "Roggwil") echo 'selected="selected"'; ?>>
+                            Roggwil
+                        </option>
+                        <option value="Romanshorn" <?php if ($dropDownVal == "Romanshorn") echo 'selected="selected"'; ?>>
+                            Romanshorn
+                        </option>
+                        <option value="Salmsach" <?php if ($dropDownVal == "Salmsach") echo 'selected="selected"'; ?>>
+                            Salmsach
+                        </option>
+                        <option value="Sommeri" <?php if ($dropDownVal == "Sommeri") echo 'selected="selected"'; ?>>
+                            Sommeri
+                        </option>
+                        <option value="Uttwil" <?php if ($dropDownVal == "Uttwil") echo 'selected="selected"'; ?>>
+                            Uttwil
+                        </option>
                     </optgroup>
                     <optgroup label="Frauenfeld">
-                        <option value="Basadingen-Schlattingen" <?php if ($dropDownVal=="Basadingen-Schlattingen") echo 'selected="selected"'; ?>>Basadingen-Schlattingen</option>
-                        <option value="Berlingen" <?php if ($dropDownVal=="Berlingen") echo 'selected="selected"'; ?>>Berlingen</option>
-                        <option value="Diessenhofen" <?php if ($dropDownVal=="Diessenhofen") echo 'selected="selected"'; ?>>Diessenhofen</option>
-                        <option value="Eschenz" <?php if ($dropDownVal=="Eschenz") echo 'selected="selected"'; ?>>Eschenz</option>
-                        <option value="Felben-Wellhausen" <?php if ($dropDownVal=="Felben-Wellhausen") echo 'selected="selected"'; ?>>Felben-Wellhausen</option>
-                        <option value="Frauenfeld" <?php if ($dropDownVal=="Frauenfeld") echo 'selected="selected"'; ?>>Frauenfeld</option>
-                        <option value="Gachnang" <?php if ($dropDownVal=="Gachnang") echo 'selected="selected"'; ?>>Gachnang</option>
-                        <option value="Herdern" <?php if ($dropDownVal=="Herdern") echo 'selected="selected"'; ?>>Herdern</option>
-                        <option value="Homburg" <?php if ($dropDownVal=="Homburg") echo 'selected="selected"'; ?>>Homburg</option>
-                        <option value="H&uuml;ttlingen" <?php if ($dropDownVal=="H&uuml;ttlingen") echo 'selected="selected"'; ?>>H&uuml;ttlingen</option>
-                        <option value="H&uuml;ttwilen" <?php if ($dropDownVal=="H&uuml;ttwilen") echo 'selected="selected"'; ?>>H&uuml;ttwilen</option>
-                        <option value="Mammern" <?php if ($dropDownVal=="Mammern") echo 'selected="selected"'; ?>>Mammern</option>
-                        <option value="Matzingen" <?php if ($dropDownVal=="Matzingen") echo 'selected="selected"'; ?>>Matzingen</option>
-                        <option value="M&uuml;llheim" <?php if ($dropDownVal=="M&uuml;llheim") echo 'selected="selected"'; ?>>M&uuml;llheim</option>
-                        <option value="Neunforn" <?php if ($dropDownVal=="Neunforn") echo 'selected="selected"'; ?>>Neunforn</option>
-                        <option value="Pfyn" <?php if ($dropDownVal=="Pfyn") echo 'selected="selected"'; ?>>Pfyn</option>
-                        <option value="Schlatt" <?php if ($dropDownVal=="Schlatt") echo 'selected="selected"'; ?>>Schlatt</option>
-                        <option value="Steckborn" <?php if ($dropDownVal=="Steckborn") echo 'selected="selected"'; ?>>Steckborn</option>
-                        <option value="Stettfurt" <?php if ($dropDownVal=="Stettfurt") echo 'selected="selected"'; ?>>Stettfurt</option>
-                        <option value="Thundorf" <?php if ($dropDownVal=="Thundorf") echo 'selected="selected"'; ?>>Thundorf</option>
-                        <option value="Uesslingen-Buch" <?php if ($dropDownVal=="Uesslingen-Buch") echo 'selected="selected"'; ?>>Uesslingen-Buch</option>
-                        <option value="Wagenhausen" <?php if ($dropDownVal=="Wagenhausen") echo 'selected="selected"'; ?>>Wagenhausen</option>
-                        <option value="Warth-Weiningen" <?php if ($dropDownVal=="Warth-Weiningen") echo 'selected="selected"'; ?>>Warth-Weiningen</option>
+                        <option value="Basadingen-Schlattingen" <?php if ($dropDownVal == "Basadingen-Schlattingen") echo 'selected="selected"'; ?>>
+                            Basadingen-Schlattingen
+                        </option>
+                        <option value="Berlingen" <?php if ($dropDownVal == "Berlingen") echo 'selected="selected"'; ?>>
+                            Berlingen
+                        </option>
+                        <option value="Diessenhofen" <?php if ($dropDownVal == "Diessenhofen") echo 'selected="selected"'; ?>>
+                            Diessenhofen
+                        </option>
+                        <option value="Eschenz" <?php if ($dropDownVal == "Eschenz") echo 'selected="selected"'; ?>>
+                            Eschenz
+                        </option>
+                        <option value="Felben-Wellhausen" <?php if ($dropDownVal == "Felben-Wellhausen") echo 'selected="selected"'; ?>>
+                            Felben-Wellhausen
+                        </option>
+                        <option value="Frauenfeld" <?php if ($dropDownVal == "Frauenfeld") echo 'selected="selected"'; ?>>
+                            Frauenfeld
+                        </option>
+                        <option value="Gachnang" <?php if ($dropDownVal == "Gachnang") echo 'selected="selected"'; ?>>
+                            Gachnang
+                        </option>
+                        <option value="Herdern" <?php if ($dropDownVal == "Herdern") echo 'selected="selected"'; ?>>
+                            Herdern
+                        </option>
+                        <option value="Homburg" <?php if ($dropDownVal == "Homburg") echo 'selected="selected"'; ?>>
+                            Homburg
+                        </option>
+                        <option value="H&uuml;ttlingen" <?php if ($dropDownVal == "H&uuml;ttlingen") echo 'selected="selected"'; ?>>
+                            H&uuml;ttlingen
+                        </option>
+                        <option value="H&uuml;ttwilen" <?php if ($dropDownVal == "H&uuml;ttwilen") echo 'selected="selected"'; ?>>
+                            H&uuml;ttwilen
+                        </option>
+                        <option value="Mammern" <?php if ($dropDownVal == "Mammern") echo 'selected="selected"'; ?>>
+                            Mammern
+                        </option>
+                        <option value="Matzingen" <?php if ($dropDownVal == "Matzingen") echo 'selected="selected"'; ?>>
+                            Matzingen
+                        </option>
+                        <option value="M&uuml;llheim" <?php if ($dropDownVal == "M&uuml;llheim") echo 'selected="selected"'; ?>>
+                            M&uuml;llheim
+                        </option>
+                        <option value="Neunforn" <?php if ($dropDownVal == "Neunforn") echo 'selected="selected"'; ?>>
+                            Neunforn
+                        </option>
+                        <option value="Pfyn" <?php if ($dropDownVal == "Pfyn") echo 'selected="selected"'; ?>>Pfyn
+                        </option>
+                        <option value="Schlatt" <?php if ($dropDownVal == "Schlatt") echo 'selected="selected"'; ?>>
+                            Schlatt
+                        </option>
+                        <option value="Steckborn" <?php if ($dropDownVal == "Steckborn") echo 'selected="selected"'; ?>>
+                            Steckborn
+                        </option>
+                        <option value="Stettfurt" <?php if ($dropDownVal == "Stettfurt") echo 'selected="selected"'; ?>>
+                            Stettfurt
+                        </option>
+                        <option value="Thundorf" <?php if ($dropDownVal == "Thundorf") echo 'selected="selected"'; ?>>
+                            Thundorf
+                        </option>
+                        <option value="Uesslingen-Buch" <?php if ($dropDownVal == "Uesslingen-Buch") echo 'selected="selected"'; ?>>
+                            Uesslingen-Buch
+                        </option>
+                        <option value="Wagenhausen" <?php if ($dropDownVal == "Wagenhausen") echo 'selected="selected"'; ?>>
+                            Wagenhausen
+                        </option>
+                        <option value="Warth-Weiningen" <?php if ($dropDownVal == "Warth-Weiningen") echo 'selected="selected"'; ?>>
+                            Warth-Weiningen
+                        </option>
                     </optgroup>
                     <optgroup label="Kreuzlingen">
-                        <option value="Altnau" <?php if ($dropDownVal=="Altnau") echo 'selected="selected"'; ?>>Altnau</option>
-                        <option value="Bottighofen" <?php if ($dropDownVal=="Bottighofen") echo 'selected="selected"'; ?>>Bottighofen</option>
-                        <option value="Ermatingen" <?php if ($dropDownVal=="Ermatingen") echo 'selected="selected"'; ?>>Ermatingen</option>
-                        <option value="Gottlieben" <?php if ($dropDownVal=="Gottlieben") echo 'selected="selected"'; ?>>Gottlieben</option>
-                        <option value="G&uuml;ttingen" <?php if ($dropDownVal=="G&uuml;ttingen") echo 'selected="selected"'; ?>>G&uuml;ttingen</option>
-                        <option value="Kemmental" <?php if ($dropDownVal=="Kemmental") echo 'selected="selected"'; ?>>Kemmental</option>
-                        <option value="Kreuzlingen" <?php if ($dropDownVal=="Kreuzlingen") echo 'selected="selected"'; ?>>Kreuzlingen</option>
-                        <option value="Langrickenbach" <?php if ($dropDownVal=="Langrickenbach") echo 'selected="selected"'; ?>>Langrickenbach</option>
-                        <option value="Lengwil" <?php if ($dropDownVal=="Lengwil") echo 'selected="selected"'; ?>>Lengwil</option>
-                        <option value="M&uuml;nsterlingen" <?php if ($dropDownVal=="M&uuml;nsterlingen") echo 'selected="selected"'; ?>>M&uuml;nsterlingen</option>
-                        <option value="Raperswilen" <?php if ($dropDownVal=="Raperswilen") echo 'selected="selected"'; ?>>Raperswilen</option>
-                        <option value="Salenstein" <?php if ($dropDownVal=="Salenstein") echo 'selected="selected"'; ?>>Salenstein</option>
-                        <option value="T&auml;gerwilen" <?php if ($dropDownVal=="T&auml;gerwilen") echo 'selected="selected"'; ?>>T&auml;gerwilen</option>
-                        <option value="W&auml;ldi" <?php if ($dropDownVal=="W&auml;ldi") echo 'selected="selected"'; ?>>W&auml;ldi</option>
+                        <option value="Altnau" <?php if ($dropDownVal == "Altnau") echo 'selected="selected"'; ?>>
+                            Altnau
+                        </option>
+                        <option value="Bottighofen" <?php if ($dropDownVal == "Bottighofen") echo 'selected="selected"'; ?>>
+                            Bottighofen
+                        </option>
+                        <option value="Ermatingen" <?php if ($dropDownVal == "Ermatingen") echo 'selected="selected"'; ?>>
+                            Ermatingen
+                        </option>
+                        <option value="Gottlieben" <?php if ($dropDownVal == "Gottlieben") echo 'selected="selected"'; ?>>
+                            Gottlieben
+                        </option>
+                        <option value="G&uuml;ttingen" <?php if ($dropDownVal == "G&uuml;ttingen") echo 'selected="selected"'; ?>>
+                            G&uuml;ttingen
+                        </option>
+                        <option value="Kemmental" <?php if ($dropDownVal == "Kemmental") echo 'selected="selected"'; ?>>
+                            Kemmental
+                        </option>
+                        <option value="Kreuzlingen" <?php if ($dropDownVal == "Kreuzlingen") echo 'selected="selected"'; ?>>
+                            Kreuzlingen
+                        </option>
+                        <option value="Langrickenbach" <?php if ($dropDownVal == "Langrickenbach") echo 'selected="selected"'; ?>>
+                            Langrickenbach
+                        </option>
+                        <option value="Lengwil" <?php if ($dropDownVal == "Lengwil") echo 'selected="selected"'; ?>>
+                            Lengwil
+                        </option>
+                        <option value="M&uuml;nsterlingen" <?php if ($dropDownVal == "M&uuml;nsterlingen") echo 'selected="selected"'; ?>>
+                            M&uuml;nsterlingen
+                        </option>
+                        <option value="Raperswilen" <?php if ($dropDownVal == "Raperswilen") echo 'selected="selected"'; ?>>
+                            Raperswilen
+                        </option>
+                        <option value="Salenstein" <?php if ($dropDownVal == "Salenstein") echo 'selected="selected"'; ?>>
+                            Salenstein
+                        </option>
+                        <option value="T&auml;gerwilen" <?php if ($dropDownVal == "T&auml;gerwilen") echo 'selected="selected"'; ?>>
+                            T&auml;gerwilen
+                        </option>
+                        <option value="W&auml;ldi" <?php if ($dropDownVal == "W&auml;ldi") echo 'selected="selected"'; ?>>
+                            W&auml;ldi
+                        </option>
                     </optgroup>
                     <optgroup label="M&uuml;nchwilen">
-                        <option value=Aadorf"" <?php if ($dropDownVal=="Aadorf") echo 'selected="selected"'; ?>>Aadorf</option>
-                        <option value="Bettwiesen" <?php if ($dropDownVal=="Bettwiesen") echo 'selected="selected"'; ?>>Bettwiesen</option>
-                        <option value="Bichelsee-Balterswil" <?php if ($dropDownVal=="Bichelsee-Balterswil") echo 'selected="selected"'; ?>>Bichelsee-Balterswil</option>
-                        <option value="Braunau" <?php if ($dropDownVal=="Braunau") echo 'selected="selected"'; ?>>Braunau</option>
-                        <option value="Eschlikon" <?php if ($dropDownVal=="Eschlikon") echo 'selected="selected"'; ?>>Eschlikon</option>
-                        <option value="Fischingen" <?php if ($dropDownVal=="Fischingen") echo 'selected="selected"'; ?>>Fischingen</option>
-                        <option value="Lommis" <?php if ($dropDownVal=="Lommis") echo 'selected="selected"'; ?>>Lommis</option>
-                        <option value="M&uuml;nchwilen" <?php if ($dropDownVal=="M&uuml;nchwilen") echo 'selected="selected"'; ?>>M&uuml;nchwilen</option>
-                        <option value="Rickenbach" <?php if ($dropDownVal=="Rickenbach") echo 'selected="selected"'; ?>>Rickenbach</option>
-                        <option value="Sirnach" <?php if ($dropDownVal=="Sirnach") echo 'selected="selected"'; ?>>Sirnach</option>
-                        <option value="Tobel-T&auml;gerschen" <?php if ($dropDownVal=="Tobel-T&auml;gerschen") echo 'selected="selected"'; ?>>Tobel-T&auml;gerschen</option>
-                        <option value="W&auml;ngi" <?php if ($dropDownVal=="W&auml;ngi") echo 'selected="selected"'; ?>>W&auml;ngi</option>
-                        <option value="Wilen" <?php if ($dropDownVal=="Wilen") echo 'selected="selected"'; ?>>Wilen</option>
+                        <option value=Aadorf"" <?php if ($dropDownVal == "Aadorf") echo 'selected="selected"'; ?>>
+                            Aadorf
+                        </option>
+                        <option value="Bettwiesen" <?php if ($dropDownVal == "Bettwiesen") echo 'selected="selected"'; ?>>
+                            Bettwiesen
+                        </option>
+                        <option value="Bichelsee-Balterswil" <?php if ($dropDownVal == "Bichelsee-Balterswil") echo 'selected="selected"'; ?>>
+                            Bichelsee-Balterswil
+                        </option>
+                        <option value="Braunau" <?php if ($dropDownVal == "Braunau") echo 'selected="selected"'; ?>>
+                            Braunau
+                        </option>
+                        <option value="Eschlikon" <?php if ($dropDownVal == "Eschlikon") echo 'selected="selected"'; ?>>
+                            Eschlikon
+                        </option>
+                        <option value="Fischingen" <?php if ($dropDownVal == "Fischingen") echo 'selected="selected"'; ?>>
+                            Fischingen
+                        </option>
+                        <option value="Lommis" <?php if ($dropDownVal == "Lommis") echo 'selected="selected"'; ?>>
+                            Lommis
+                        </option>
+                        <option value="M&uuml;nchwilen" <?php if ($dropDownVal == "M&uuml;nchwilen") echo 'selected="selected"'; ?>>
+                            M&uuml;nchwilen
+                        </option>
+                        <option value="Rickenbach" <?php if ($dropDownVal == "Rickenbach") echo 'selected="selected"'; ?>>
+                            Rickenbach
+                        </option>
+                        <option value="Sirnach" <?php if ($dropDownVal == "Sirnach") echo 'selected="selected"'; ?>>
+                            Sirnach
+                        </option>
+                        <option value="Tobel-T&auml;gerschen" <?php if ($dropDownVal == "Tobel-T&auml;gerschen") echo 'selected="selected"'; ?>>
+                            Tobel-T&auml;gerschen
+                        </option>
+                        <option value="W&auml;ngi" <?php if ($dropDownVal == "W&auml;ngi") echo 'selected="selected"'; ?>>
+                            W&auml;ngi
+                        </option>
+                        <option value="Wilen" <?php if ($dropDownVal == "Wilen") echo 'selected="selected"'; ?>>Wilen
+                        </option>
                     </optgroup>
                     <optgroup label="Weinfelden">
-                        <option value="Affeltrangen" <?php if ($dropDownVal=="Affeltrangen") echo 'selected="selected"'; ?>>Affeltrangen</option>
-                        <option value="Amlikon-Bissegg" <?php if ($dropDownVal=="Amlikon-Bissegg") echo 'selected="selected"'; ?>>Amlikon-Bissegg</option>
-                        <option value="Berg" <?php if ($dropDownVal=="Berg") echo 'selected="selected"'; ?>>Berg</option>
-                        <option value="Birwinken" <?php if ($dropDownVal=="Birwinken") echo 'selected="selected"'; ?>>Birwinken</option>
-                        <option value="Bischofszell" <?php if ($dropDownVal=="Bischofszell") echo 'selected="selected"'; ?>>Bischofszell</option>
-                        <option value="B&uuml;rglen" <?php if ($dropDownVal=="B&uumlrglen") echo 'selected="selected"'; ?>>B&uuml;rglen</option>
-                        <option value="Bussnang" <?php if ($dropDownVal=="Bussnang") echo 'selected="selected"'; ?>>Bussnang</option>
-                        <option value="Erlen" <?php if ($dropDownVal=="Erlen") echo 'selected="selected"'; ?>>Erlen</option>
-                        <option value="Hauptwil-Gottshaus" <?php if ($dropDownVal=="Hauptwil-Gottshaus") echo 'selected="selected"'; ?>>Hauptwil-Gottshaus</option>
-                        <option value="Hohentannen" <?php if ($dropDownVal=="Hohentannen") echo 'selected="selected"'; ?>>Hohentannen</option>
-                        <option value="Kradolf-Sch&ouml;nenberg" <?php if ($dropDownVal=="Kradolf-Sch&ouml;nenberg") echo 'selected="selected"'; ?>>Kradolf-Sch&ouml;nenberg</option>
-                        <option value="M&auml;rstetten" <?php if ($dropDownVal=="M&auml;rstetten") echo 'selected="selected"'; ?>>M&auml;rstetten</option>
-                        <option value="Sch&ouml;nholzerswilen" <?php if ($dropDownVal=="Sch&ouml;nholzerswilen") echo 'selected="selected"'; ?>>Sch&ouml;nholzerswilen</option>
-                        <option value="Sulgen" <?php if ($dropDownVal=="Sulgen") echo 'selected="selected"'; ?>>Sulgen</option>
-                        <option value="Weinfelden" <?php if ($dropDownVal=="Weinfelden") echo 'selected="selected"'; ?>>Weinfelden</option>
-                        <option value="Wigoltingen" <?php if ($dropDownVal=="Wigoltingen") echo 'selected="selected"'; ?>>Wigoltingen</option>
-                        <option value="Wuppenau" <?php if ($dropDownVal=="Wuppenau") echo 'selected="selected"'; ?>>Wuppenau</option>
-                        <option value="Zihlschlacht-Sitterdorf" <?php if ($dropDownVal=="Zihlschlacht-Sitterdorf") echo 'selected="selected"'; ?>>Zihlschlacht-Sitterdorf</option>
+                        <option value="Affeltrangen" <?php if ($dropDownVal == "Affeltrangen") echo 'selected="selected"'; ?>>
+                            Affeltrangen
+                        </option>
+                        <option value="Amlikon-Bissegg" <?php if ($dropDownVal == "Amlikon-Bissegg") echo 'selected="selected"'; ?>>
+                            Amlikon-Bissegg
+                        </option>
+                        <option value="Berg" <?php if ($dropDownVal == "Berg") echo 'selected="selected"'; ?>>Berg
+                        </option>
+                        <option value="Birwinken" <?php if ($dropDownVal == "Birwinken") echo 'selected="selected"'; ?>>
+                            Birwinken
+                        </option>
+                        <option value="Bischofszell" <?php if ($dropDownVal == "Bischofszell") echo 'selected="selected"'; ?>>
+                            Bischofszell
+                        </option>
+                        <option value="B&uuml;rglen" <?php if ($dropDownVal == "B&uumlrglen") echo 'selected="selected"'; ?>>
+                            B&uuml;rglen
+                        </option>
+                        <option value="Bussnang" <?php if ($dropDownVal == "Bussnang") echo 'selected="selected"'; ?>>
+                            Bussnang
+                        </option>
+                        <option value="Erlen" <?php if ($dropDownVal == "Erlen") echo 'selected="selected"'; ?>>Erlen
+                        </option>
+                        <option value="Hauptwil-Gottshaus" <?php if ($dropDownVal == "Hauptwil-Gottshaus") echo 'selected="selected"'; ?>>
+                            Hauptwil-Gottshaus
+                        </option>
+                        <option value="Hohentannen" <?php if ($dropDownVal == "Hohentannen") echo 'selected="selected"'; ?>>
+                            Hohentannen
+                        </option>
+                        <option value="Kradolf-Sch&ouml;nenberg" <?php if ($dropDownVal == "Kradolf-Sch&ouml;nenberg") echo 'selected="selected"'; ?>>
+                            Kradolf-Sch&ouml;nenberg
+                        </option>
+                        <option value="M&auml;rstetten" <?php if ($dropDownVal == "M&auml;rstetten") echo 'selected="selected"'; ?>>
+                            M&auml;rstetten
+                        </option>
+                        <option value="Sch&ouml;nholzerswilen" <?php if ($dropDownVal == "Sch&ouml;nholzerswilen") echo 'selected="selected"'; ?>>
+                            Sch&ouml;nholzerswilen
+                        </option>
+                        <option value="Sulgen" <?php if ($dropDownVal == "Sulgen") echo 'selected="selected"'; ?>>
+                            Sulgen
+                        </option>
+                        <option value="Weinfelden" <?php if ($dropDownVal == "Weinfelden") echo 'selected="selected"'; ?>>
+                            Weinfelden
+                        </option>
+                        <option value="Wigoltingen" <?php if ($dropDownVal == "Wigoltingen") echo 'selected="selected"'; ?>>
+                            Wigoltingen
+                        </option>
+                        <option value="Wuppenau" <?php if ($dropDownVal == "Wuppenau") echo 'selected="selected"'; ?>>
+                            Wuppenau
+                        </option>
+                        <option value="Zihlschlacht-Sitterdorf" <?php if ($dropDownVal == "Zihlschlacht-Sitterdorf") echo 'selected="selected"'; ?>>
+                            Zihlschlacht-Sitterdorf
+                        </option>
                     </optgroup>
                 </select>
-                <h4><br>Anzeigeart auswh&auml;hlen:</h4>
-                <h5><br>Typ der Daten</h5>
+                <h4><br>Anzeigeart ausw&auml;hlen:</h4>
                 <fieldset id="typ">
                     <input type="radio" id="jaNein" name="typ" value="Ja/Nein" CHECKED>
                     <label for="jaNein"> Ja/Nein</label><br>
                     <input type="radio" id="stimmbeteiligung" name="typ" value="Stimmbeteiligung">
                     <label for="stimmbeteiligung"> Stimmbeteiligung</label>
                 </fieldset>
-                <h5><br>Form der Daten:</h5>
-                <fieldset id="form">
-                    <input type="radio" id="prozent" name="form" value="inProzent" CHECKED>
-                    <label for="prozent"> In Prozent</label><br>
-                    <input type="radio" id="anzahlStimmen" name="form" value="inAnzahlStimmen">
-                    <label for="anzahlStimmen"> In Anzahl Stimmen</label>
-                </fieldset>
             </div>
             <div class="column">
-                <h2>Column 2</h2>
                 <div id="chart_div"></div>
-                <?php echo $jaAusgabe . " hallo i bims de resultat " . $neinAusgabe; ?>
             </div>
         </div>
         <div class="form-inline">
