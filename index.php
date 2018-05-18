@@ -28,9 +28,8 @@
             flex: 50%;
             padding: 10px;
 
-
-    }
-</style>
+        }
+    </style>
 
 
 </head>
@@ -48,7 +47,7 @@
     $servername = "127.0.0.1";
     $username = "root";
     $password = "";
-    $dbname = "test";
+    $dbname = "AbstimmungenGemeinde_OGD";
     $dates = array();
     $names = array();
     $test = array();
@@ -135,8 +134,16 @@
             data.addColumn('string', 'State');
             data.addColumn('number', 'Number');
             data.addRows([
-                ['<?php if ($typ == "Ja/Nein") { echo "Ja"; } else { echo "Stimmende"; }?>', <?php echo $jaAusgabe;?>],
-                ['<?php if ($typ == "Ja/Nein") { echo "Nein"; } else { echo "Nicht-Stimmende"; }?>', <?php echo $neinAusgabe;?>]
+                ['<?php if ($typ == "Ja/Nein") {
+                    echo "Ja";
+                } else {
+                    echo "Stimmende";
+                }?>', <?php echo $jaAusgabe;?>],
+                ['<?php if ($typ == "Ja/Nein") {
+                    echo "Nein";
+                } else {
+                    echo "Nicht-Stimmende";
+                }?>', <?php echo $neinAusgabe;?>]
             ]);
 
             // Set chart options
@@ -420,9 +427,11 @@
                 </select>
                 <h4><br>Anzeigeart ausw&auml;hlen:</h4>
                 <fieldset id="typ">
-                    <input type="radio" id="jaNein" name="typ" value="Ja/Nein" <?php if ($typ == "Ja/Nein") echo 'checked';?>>
+                    <input type="radio" id="jaNein" name="typ"
+                           value="Ja/Nein" <?php if ($typ == "Ja/Nein") echo 'checked'; ?>>
                     <label for="jaNein"> Ja/Nein</label><br>
-                    <input type="radio" id="stimmbeteiligung" name="typ" value="Stimmbeteiligung" <?php if ($typ == "Stimmbeteiligung") echo 'checked';?>>
+                    <input type="radio" id="stimmbeteiligung" name="typ"
+                           value="Stimmbeteiligung" <?php if ($typ == "Stimmbeteiligung") echo 'checked'; ?>>
                     <label for="stimmbeteiligung"> Stimmbeteiligung</label>
                 </fieldset>
                 <br>
@@ -468,39 +477,23 @@
             echo "<th>Datum</th>";
             echo "<th>Bezeichnung</th>";
             echo "</tr>";
-            if ($datalength > 10) {
-                for ($i = 0; $i < 10; $i++) {
-                    if ($i == 0) {
-                        echo "<td>" . $dates[$i] . "</td>";
-                        echo "<td>" . $names[$i] . $test[$i] . "</td>";
-                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]' CHECKED></td>";
-                        echo "</tr>";
-                    } else {
-                        echo "<td>" . $dates[$i] . "</td>";
-                        echo "<td>" . $names[$i] . "</td>";
-                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]'></td>";
-                        echo "</tr>";
-                    }
 
-                }
-            } else {
-                for ($i = 0; $i < $datalength; $i++) {
-                    if ($i == 0) {
-                        echo "<td>" . $dates[$i] . "</td>";
-                        echo "<td>" . $names[$i] . "</td>";
-                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]' CHECKED></td>";
-                        echo "</tr>";
-                    } else {
-                        echo "<td>" . $dates[$i] . "</td>";
-                        echo "<td>" . $names[$i] . "</td>";
-                        echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]'></td>";
-                        echo "</tr>";
-                    }
+            for ($i = 0; $i < $datalength; $i++) {
+                if ($i == 0) {
+                    echo "<td>" . $dates[$i] . "</td>";
+                    echo "<td>" . $names[$i] . "</td>";
+                    echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]' CHECKED></td>";
+                    echo "</tr>";
+                } else {
+                    echo "<td>" . $dates[$i] . "</td>";
+                    echo "<td>" . $names[$i] . "</td>";
+                    echo "<td><input type='radio' id='" . "id" . $i . "' name='dataSel' value='$names[$i]'></td>";
+                    echo "</tr>";
                 }
             }
             echo "</table>";
             echo "</fieldset>";
-            echo $name;
+            echo $datalength;
         } else {
             echo "0 results";
         }
