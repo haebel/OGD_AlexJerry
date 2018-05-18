@@ -168,6 +168,7 @@
                 }?>', <?php echo $neinAusgabe;?>]
             ]);
 
+            //test
             // Set chart options
             var options = {
                 'title': '<?php echo $name;?>',
